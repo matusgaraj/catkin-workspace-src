@@ -1,0 +1,4 @@
+# Ignore build artifacts, logs, etc.
+
+build/
+devel/

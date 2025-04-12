@@ -1,0 +1,13 @@
+train: ../../../../data/tomato_dataset/train/images
+val: ../../../../data/tomato_dataset/valid/images
+test: ../../../../data/tomato_dataset/test/images
+
+nc: 2
+names: ['tomato', 'unripe']
+
+roboflow:
+  workspace: tomato-smce5
+  project: tomato_detection-dciwq
+  version: 11
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/tomato-smce5/tomato_detection-dciwq/dataset/11

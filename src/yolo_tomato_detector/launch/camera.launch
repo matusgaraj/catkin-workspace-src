@@ -1,0 +1,9 @@
+<launch>
+  <!-- Spustenie Realsense ROS uzla -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+  
+  <!-- Spustenie YOLO detekčného uzla -->
+  <node pkg="yolo_tomato_detector" type="detect_yolo_stream.py" name="yolo_tomato_detector_stream" output="screen">
+    <param name="image_encoding" value="bgr8"/>
+  </node>
+</launch>
