@@ -37,6 +37,8 @@ def draw_boxes(frame, results):
     for box in boxes:
         x1, y1, x2, y2, conf, cls = box
         label = results.names[int(cls)]
+        if label != "tomato":
+            continue
         cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
         text = f"{label}: {conf:.2f}"
         cv2.putText(frame, text, (int(x1), int(y1)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
