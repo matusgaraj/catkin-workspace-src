@@ -65,7 +65,7 @@ def process_image(image):
     # Compute the distance transform from the cleaned mask
     dist_transform = cv2.distanceTransform(masked_gray_blurred, cv2.DIST_L2, 5)
     
-    # Option 1: Suppress pixels above a relative threshold
+    # Suppress pixels above a relative threshold
     global_max = np.max(dist_transform)
     threshold_value = 0.8 * global_max  # Adjust factor as needed (e.g., 0.9 means suppress top 10%)
     dominant_mask = (dist_transform >= threshold_value)

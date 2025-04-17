@@ -1,0 +1,13 @@
+<launch>
+  <!-- 1) Spustenie Realsense ROS uzla -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+
+  <!-- 2) Spustenie vášho segmentation+Hough stream uzla -->
+  <node pkg="tomato_detector"
+        type="detect_segmentation_stream.py"
+        name="seg_tomato_detector_stream"
+        output="screen">
+    <!-- Ak váš node očakáva nejaký param, môžete ho tu pridať -->
+    <param name="image_encoding" value="bgr8"/>
+  </node>
+</launch>
