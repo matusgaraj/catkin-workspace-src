@@ -1,0 +1,35 @@
+<launch>
+  <!-- 1) RealSense driver with depth‐to‐color alignment enabled -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="align_depth" value="true"/>
+  </include>
+
+  <!-- 2) YOLO detector -->
+  <node pkg="yolo_tomato_detector"
+        type="detect_yolo_stream.py"
+        name="yolo_detector"
+        output="screen"/>
+
+  <!-- 3) Coordinate‐transform -->
+  <node pkg="detection_transforms"
+        type="coordinate_transform.py"
+        name="coordinate_transform"
+        output="screen"/>
+
+  <!-- 4) Trajectory planner  -->
+  <node pkg="ur5e_planning"
+        type="trajectory_planner.py"
+        name="trajectory_planner"
+        output="screen">
+  </node>
+
+  <!-- 5) view image -->
+  <node pkg="rqt_image_view"
+        type="rqt_image_view"
+        name="rqt_image"
+        args="/yolo_detected_stream"
+        output="screen"/>
+
+  <!-- 6) MoveIt demo -->
+  <include file="$(find ur5e_moveit_config)/launch/demo.launch"/>
+</launch>
