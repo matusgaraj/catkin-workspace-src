@@ -1,6 +1,8 @@
 <launch>
-  <!-- 1) Spustenie Realsense ROS uzla -->
-  <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+  <!-- 1) RealSense driver with depth‐to‐color alignment enabled -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="align_depth" value="true"/>
+  </include>
 
   <!-- 2) Spustenie vášho segmentation+Hough stream uzla -->
   <node pkg="tomato_detector"

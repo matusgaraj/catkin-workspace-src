@@ -45,7 +45,7 @@ def process_image(image):
 
     # Combine the two masks using bitwise OR
     mask = mask1 | mask2
-
+    mask_output=mask
     # Clean Up the Mask 
     kernel1 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
     kernel2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (60,60))
@@ -55,7 +55,8 @@ def process_image(image):
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel2)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel3)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel4)
-
+    
+    mask_output_morf=mask
     # Hough circle transformation pre-processing
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     masked_gray = cv2.bitwise_and(gray_image, gray_image, mask=mask)  
@@ -132,16 +133,16 @@ def process_image(image):
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     masked_gray = cv2.bitwise_and(gray_image, gray_image, mask=mask)  
     masked_gray_blurred = cv2.medianBlur(masked_gray, 5)
-    edges = cv2.Canny(masked_gray, threshold1=50, threshold2=150)
+    edges = cv2.Canny(mask, threshold1=50, threshold2=150)
 
     # Hough circle transformation
     circles = cv2.HoughCircles(
-        edges,             # input image (grayscale)
+        masked_gray_blurred,             # input image (grayscale)
         cv2.HOUGH_GRADIENT,       # detection method
         dp=1,                     # inverse ratio of accumulator resolution
         minDist=int(200 * scale), # minimum distance between circle centers (Pixels)
-        param1=600,               # upper threshold for Canny edge detector
-        param2=55,                # threshold for center detection
+        param1=260,               # upper threshold for Canny edge detector
+        param2=25,                # threshold for center detection
         minRadius=int(50 * scale),# min circle radius (Pixels)
         maxRadius=1000000         # max circle radius (Pixels)
     )
@@ -179,14 +180,14 @@ def process_image(image):
     cv2.drawContours(hull_output, hull_contours, -1, (255, 0, 0), 2)
 
 
-    return output, mask, filtered_contours, hull_output, hough_output, masked_gray_blurred, depth_map, dt_output, watershed_output
+    return output, mask, filtered_contours, hull_output, hough_output, masked_gray_blurred, depth_map, dt_output, watershed_output, mask_output, mask_output_morf, edges
 
 def main():
     # Initialize the ROS node
     rospy.init_node('tomato_detector_node', anonymous=True)
 
     # Set the image path directly in the code
-    image_path = "/mnt/c/Users/matga/Desktop/tomato3.jpg"
+    image_path = "/mnt/c/Users/matga/Desktop/tomato2.jpg"
     rospy.loginfo("Loading image from: %s", image_path)
 
     # Read the image using OpenCV.
@@ -197,7 +198,7 @@ def main():
 
     # Process the image for color segmentation and contour detection.
     (output, mask, filtered_contours, hull_output,
-     hough_output, masked_gray_blurred, depth_map, dt_output, watershed_output) = process_image(image)
+     hough_output, masked_gray_blurred, depth_map, dt_output, watershed_output, mask_output, mask_output_morf, edges) = process_image(image)
      
     rospy.loginfo("Found %d contours", len(filtered_contours))
 
@@ -210,6 +211,9 @@ def main():
     cv2.imwrite("/mnt/c/Users/matga/Desktop/processed_images/Depth_Map.jpg", depth_map)
     cv2.imwrite("/mnt/c/Users/matga/Desktop/processed_images/Distance_Transform.jpg", dt_output)
     cv2.imwrite("/mnt/c/Users/matga/Desktop/processed_images/Watershed_Result.jpg", watershed_output)
+    cv2.imwrite("/mnt/c/Users/matga/Desktop/processed_images/mask_povodna.jpg", mask_output)
+    cv2.imwrite("/mnt/c/Users/matga/Desktop/processed_images/mask_povodna_morf.jpg", mask_output_morf)
+    cv2.imwrite("/mnt/c/Users/matga/Desktop/processed_images/edges.jpg", edges)
 
 if __name__ == '__main__':
     try:

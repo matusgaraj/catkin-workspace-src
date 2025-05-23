@@ -36,8 +36,8 @@ class TomatoTrajectoryPlanner:
         moveit_commander.roscpp_initialize([])
         self.group = moveit_commander.MoveGroupCommander("manipulator")
         self.group.set_planning_time(5.0)
-        self.group.set_max_velocity_scaling_factor(0.5)
-        self.group.set_max_acceleration_scaling_factor(0.5)
+        self.group.set_max_velocity_scaling_factor(0.2)
+        self.group.set_max_acceleration_scaling_factor(0.1)
         self.group.allow_replanning(True)
 
         # 2) TF for frame conversions
@@ -45,21 +45,21 @@ class TomatoTrajectoryPlanner:
         tf2_ros.TransformListener(self.tf_buffer)
 
         # 4) How long to hold after diving before returning home
-        self.return_delay = 5.0  # seconds
+        self.return_delay = 10.0  # seconds
 
         # 5) HOME JOINTS for observation
         self.home_joint_angles = [
-            math.radians(-90.0),   # shoulder_pan_joint
-            math.radians(-60.0),   # shoulder_lift_joint
-            math.radians(-140.0),  # elbow_joint
-            math.radians(0.0),     # wrist_1_joint
-            math.radians(90.0),    # wrist_2_joint
-            math.radians(0.0)      # wrist_3_joint
+            math.radians(-40.0),   # shoulder_pan_joint
+            math.radians(-30.0),   # shoulder_lift_joint
+            math.radians(-150.0),  # elbow_joint
+            math.radians(-60.0),     # wrist_1_joint
+            math.radians(60.0),    # wrist_2_joint
+            math.radians(42.0)      # wrist_3_joint
         ]
 
         # 6) Confirmation window for stable detection
         self._window     = deque(maxlen=3)
-        self._confirm_tol = 0.02  # meters
+        self._confirm_tol = 0.05  # meters
 
         # 7) Marker publisher for the confirmed target
         self.target_pub = rospy.Publisher("/tomato_target", Marker, queue_size=1)
@@ -80,27 +80,6 @@ class TomatoTrajectoryPlanner:
             )
         )
         self.scene.add_box("table_top", table, size=(2.0, 2.0, 0.05))
-
-        # -- left wall at x = +0.30 m, 2 cm thick in X, 2 m deep, 1.5 m high
-        left_wall = PoseStamped(
-            header=Header(frame_id="base_link"),
-            pose=Pose(
-                position=Point( 0.30, 0.0, 0.75),
-                orientation=Quaternion(0,0,0,1)
-            )
-        )
-        self.scene.add_box("left_wall", left_wall, size=(0.02, 2.0, 1.50))
-
-        # -- right wall at x = -0.30 m
-        right_wall = PoseStamped(
-            header=Header(frame_id="base_link"),
-            pose=Pose(
-                position=Point(-0.30, 0.0, 0.75),
-                orientation=Quaternion(0,0,0,1)
-            )
-        )
-        self.scene.add_box("right_wall", right_wall, size=(0.02, 2.0, 1.50))
-
 
         # 8) Subscribe to incoming tomato positions
         self.busy = False

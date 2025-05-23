@@ -25,7 +25,7 @@ cam_model      = None
 def camera_info_cb(msg: CameraInfo):
     global intr, tf_buffer, static_bcaster, cam_model
     if intr is None:
-        # load aligned‐depth intrinsics
+        # load aligned-depth intrinsics
         cam_model = PinholeCameraModel()
         cam_model.fromCameraInfo(msg)
         intr = CameraIntrinsics(
@@ -49,7 +49,7 @@ def camera_info_cb(msg: CameraInfo):
 
         t.transform.translation.x = -0.032500
         t.transform.translation.y = -0.076287
-        t.transform.translation.z =   0.032679 - 0.001930  # 30.749 mm to the actual focal point - 1,93mm from glass to the focal point
+        t.transform.translation.z =  0.032679 - 0.001930  # adjust for focal point
 
         q = quaternion_from_euler(
             math.radians(-8.0),  # roll
@@ -68,6 +68,14 @@ def raw_cb(msg: Float32MultiArray):
     global intr, marker_pub, tf_buffer, cam_model
     if intr is None or tf_buffer is None:
         rospy.logwarn_throttle(5.0, "[XFORM] waiting for camera_info…")
+        return
+
+    # wait until our static wrist→camera transform is in the buffer
+    if not tf_buffer.can_transform(
+            "wrist_3_link", intr.frame_id,
+            rospy.Time(0), rospy.Duration(0.5)):
+        rospy.logwarn_throttle(
+            5.0, "[XFORM] waiting for static TF %s→wrist_3_link", intr.frame_id)
         return
 
     arr = np.array(msg.data, dtype=float).reshape(-1,4)

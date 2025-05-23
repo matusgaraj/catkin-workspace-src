@@ -127,7 +127,7 @@ def color_callback(msg):
     vis = frame.copy()
     for x, y, r in dets:
         cv2.circle(vis, (x, y), r, (0, 255, 0), 2)  # circle edge
-        cv2.circle(vis, (x, y),   2, (0,   0, 255), -1)  # center dot
+        cv2.circle(vis, (x, y),   2, (0,   255, 0), -1)  # center dot
 
     try:
         image_pub.publish(bridge.cv2_to_imgmsg(vis, "bgr8"))

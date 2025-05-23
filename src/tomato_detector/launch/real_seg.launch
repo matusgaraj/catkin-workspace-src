@@ -4,29 +4,32 @@
     <arg name="align_depth" value="true"/>
   </include>
 
-  <!-- 2) YOLO detector -->
-  <node pkg="yolo_tomato_detector"
-        type="detect_yolo_stream.py"
-        name="yolo_detector"
+  <!-- 2) MoveIt planning & execution -->
+  <include file="$(find ur5e_moveit_config)/launch/moveit_planning_execution.launch"/>
+
+  <!-- 3) RViz for MoveIt -->
+  <include file="$(find ur5e_moveit_config)/launch/moveit_rviz.launch"/>
+
+  <!-- 4) Segmentation detector -->
+  <node pkg="tomato_detector"
+        type="detect_segmentation_stream.py"
+        name="seg_tomato_detector_stream"
         output="screen"/>
 
-  <!-- 6) MoveIt demo -->
-  <include file="$(find ur5e_moveit_config)/launch/demo.launch"/>
-
-  <!-- 3) Coordinate‐transform -->
+  <!-- 5) Coordinate‐transform -->
   <node pkg="detection_transforms"
         type="coordinate_transform.py"
         name="coordinate_transform"
         output="screen"/>
 
-  <!-- 4) Trajectory planner  -->
+  <!-- 6) Trajectory planner  -->
   <node pkg="ur5e_planning"
         type="trajectory_planner.py"
         name="trajectory_planner"
         output="screen">
   </node>
 
-  <!-- 5) view image -->
+  <!-- 7) view image -->
   <node pkg="rqt_image_view"
         type="rqt_image_view"
         name="rqt_image"
